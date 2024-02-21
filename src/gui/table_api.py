@@ -1,6 +1,8 @@
 import tkinter as tk
 import requests
 
+from historical_data import get_historical_data
+
 class Table(tk.Frame):
     def __init__(self, parent, data, headers=[], *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -32,16 +34,40 @@ class App(tk.Tk):
         self.title("Table with API Data")
 
         # Fetch data from API
-        api_url = "https://jsonplaceholder.typicode.com/todos/1"  # Replace with your API endpoint
-        response = requests.get(api_url)
+        url = "https://api.dhan.co/charts/historical"  # Replace with your API endpoint
+        payload = {
+            "symbol": "TCS",
+            "exchangeSegment": "NSE_EQ",
+            "instrument": "EQUITY",
+            "expiryCode": -2147483648,
+            "fromDate": "2024-01-01",
+            "toDate": "2024-01-31"
+        }
+
+        headers = {
+            "access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzA4ODU3MjUwLCJ0b2tlbkNvbnN1bWVyVHlwZSI6IlNFTEYiLCJ3ZWJob29rVXJsIjoiIiwiZGhhbkNsaWVudElkIjoiMTEwMjQ4MzczMCJ9.KWyGKr-BL9vJ12OOhYmqcHw9S3n5w_6rYKCEc_6w9zEzVLJdjooVzl46joGbLY1ALlE_J9v_VpHVnKS9r3H5yw",
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+
+        # csv_filename = 'historical_data.csv'
+        response = requests.post(url, json=payload, headers=headers)
+        # response = data.get_historical_data()
         if response.status_code == 200:
             data = response.json()
-            headers = ["Header 1", "Header 2", "Header 3"]  # Provide headers based on your API data
+            headers = ["open","high","low","close","volume","start_Time","date"]  # Provide headers based on your API data
             self.table = Table(self, data, headers=headers)
             self.table.pack(expand=True, fill="both")
         else:
             print("Failed to fetch data from API.")
 
+    def test(self):
+        print("this is my test funtion")
+
 if __name__ == "__main__":
+    # url = "https://api.dhan.co/charts/historical"
+
+    # print(get_historical_data(url, payload, headers, csv_filename))
     app = App()
     app.mainloop()
+    app.test()
