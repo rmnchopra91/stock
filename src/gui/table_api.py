@@ -1,5 +1,6 @@
 import tkinter as tk
 import requests
+import json
 
 from historical_data import get_historical_data
 
@@ -16,11 +17,15 @@ class Table(tk.Frame):
                 header_label = tk.Label(self, text=header_text, borderwidth=1, relief="solid")
                 header_label.grid(row=0, column=column, sticky="nsew")
 
-        for row, item in enumerate(self.data, start=1):
-            for column, value in enumerate(item):
+        for column, header_value in enumerate(self.data.keys()):
+            for row, inner_value in enumerate(self.data[header_value][:5]):
+                print(f"item : {header_value}")
+                print(f"row : {row}")
+                print(f"column : {column}")
+                print(f"value : {inner_value}")
                 cell = tk.Entry(self, borderwidth=1, relief="solid", bg="white")
-                cell.grid(row=row, column=column, sticky="nsew")
-                cell.insert(tk.END, value)
+                cell.grid(row=row+1, column=column, sticky="nsew")
+                cell.insert(tk.END, inner_value)
 
         for row in range(len(self.data) + 1):
             self.grid_rowconfigure(row, weight=1)
@@ -50,19 +55,20 @@ class App(tk.Tk):
             "Accept": "application/json"
         }
 
-        # csv_filename = 'historical_data.csv'
-        response = requests.post(url, json=payload, headers=headers)
-        # response = data.get_historical_data()
-        if response.status_code == 200:
-            data = response.json()
-            headers = ["open","high","low","close","volume","start_Time","date"]  # Provide headers based on your API data
-            self.table = Table(self, data, headers=headers)
-            self.table.pack(expand=True, fill="both")
-        else:
-            print("Failed to fetch data from API.")
+        data = get_historical_data(url, payload, headers)
+        headers = ["open","high","low","close","volume","start_Time","date"]  # Provide headers based on your API data
+        
+        self.table = Table(self, data, headers=headers)
+        self.table.pack(expand=True, fill="both")
 
-    def test(self):
-        print("this is my test funtion")
+    # def submit(self):
+    #     input1_value = self.input1_entry.get()
+    #     input2_value = self.input2_entry.get()
+    #     print("Input 1:", input1_value)
+    #     print("Input 2:", input2_value)
+
+    def close(self):
+        print("you clicked on close")
 
 if __name__ == "__main__":
     # url = "https://api.dhan.co/charts/historical"
@@ -70,4 +76,4 @@ if __name__ == "__main__":
     # print(get_historical_data(url, payload, headers, csv_filename))
     app = App()
     app.mainloop()
-    app.test()
+    app.close()

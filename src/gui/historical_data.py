@@ -10,28 +10,24 @@ def convert_to_date_time(JulianDate):
         DtObj= Dt1980+ timedelta(seconds=JulianDate)
         return DtObj
 
-def get_historical_data(url, payload, headers, csv_filename):
+def get_historical_data(url, payload, headers):
     try:
         response = requests.post(url, json=payload, headers=headers)
 
         if response.status_code == 200:
             data = response.json()
-
-            
             # # Convert start_Time to datetime and add as a new column
             start_time = [convert_to_date_time(t) for t in data['start_Time']]
             dates = [t.date() for t in start_time]
             data['date'] = dates
-
-
             # Write data to CSV file
-            with open(csv_filename, 'w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(data.keys())
-                for row in zip(*data.values()):
-                    writer.writerow(row)
+            # with open(csv_filename, 'w', newline='') as file:
+            #     writer = csv.writer(file)
+            #     writer.writerow(data.keys())
+            #     for row in zip(*data.values()):
+            #         writer.writerow(row)
 
-            print(f"Data saved to {csv_filename} file.")
+            print(f"Data saved to file.")
             return data
 
         else:
@@ -55,13 +51,13 @@ payload = {
 }
 
 headers = {
-     "access-token": "access-token",
+     "access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzA4ODU3MjUwLCJ0b2tlbkNvbnN1bWVyVHlwZSI6IlNFTEYiLCJ3ZWJob29rVXJsIjoiIiwiZGhhbkNsaWVudElkIjoiMTEwMjQ4MzczMCJ9.KWyGKr-BL9vJ12OOhYmqcHw9S3n5w_6rYKCEc_6w9zEzVLJdjooVzl46joGbLY1ALlE_J9v_VpHVnKS9r3H5yw",
     "Content-Type": "application/json",
     "Accept": "application/json"
 }
 
-csv_filename = 'historical_data.csv'
-data = get_historical_data(url, payload, headers, csv_filename)
+# csv_filename = 'historical_data.csv'
+data = get_historical_data(url, payload, headers)
 # print(json.dumps(data, indent=4))
 
 
