@@ -6,6 +6,7 @@ from dhanhq import dhanhq
 from dhanhq import marketfeed
 import tracemalloc
 import dhan_test as api
+import json
 
 from historical_data import get_historical_data
 
@@ -53,7 +54,7 @@ class App(tk.Tk):
         self.symbol = "SBIN"
         self.title("Table with Input Fields and Button")
         self.client_id = "1102483730"
-        self.access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzA4ODU3MjUwLCJ0b2tlbkNvbnN1bWVyVHlwZSI6IlNFTEYiLCJ3ZWJob29rVXJsIjoiIiwiZGhhbkNsaWVudElkIjoiMTEwMjQ4MzczMCJ9.KWyGKr-BL9vJ12OOhYmqcHw9S3n5w_6rYKCEc_6w9zEzVLJdjooVzl46joGbLY1ALlE_J9v_VpHVnKS9r3H5yw"
+        self.access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzA5NDg3ODIzLCJ0b2tlbkNvbnN1bWVyVHlwZSI6IlNFTEYiLCJ3ZWJob29rVXJsIjoiIiwiZGhhbkNsaWVudElkIjoiMTEwMjQ4MzczMCJ9.2322RAWp_TJoeMSOiP9yxEGIRJtTQLognw-QDLWBxYc80yw40TDzcNT1M3xOW2aUZh7r4sbyhR-IY6DrtMI0Pg"
 
         self.price_label = tk.Label(self, text="Price:")
         self.price_label.grid(row=0, column=0, padx=0, pady=10)
@@ -86,9 +87,15 @@ class App(tk.Tk):
         price = self.price_entry.get()
         print(f":::::::::{price}::::::::::::::::::::")
         response = api.place_order(self.client_id, self.access_token, security_id, price)
-        print(response)
+        print("Res......", response)
+        if response['status'] == 'failure':
+            message = f"Error Code: {response['remarks']['error_code']}\nMessage: {response['remarks']['message']}"
+            messagebox.showinfo("Error", message)
+        else:
+            message = f"Order placed successfully.\nDetails: {response}"
+            messagebox.showinfo("Form Submitted", message)
         # dummy_data.append((price))
-        messagebox.showinfo("Form Submitted", f"your order is placed {response}")
+        
 
     def submit(self):
         print("Input 1:" )

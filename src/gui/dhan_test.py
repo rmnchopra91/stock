@@ -2,11 +2,15 @@
 # pip install websockets
 from dhanhq import dhanhq
 from dhanhq import marketfeed
+import logging
 
 import constant as cons
 
-access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzA4MDgxNTk4LCJ0b2tlbkNvbnN1bWVyVHlwZSI6IlNFTEYiLCJ3ZWJob29rVXJsIjoiIiwiZGhhbkNsaWVudElkIjoiMTEwMjQ2ODY5MiJ9.ZGIxqrE5ODPO_HYSy4yNET0Er7PoHHE-cT-IOgWzVsZbyjfxFy2nf_9u-WNwGU0JJLIHv5OTlNv14BGv_Raziw"
-client_id = "1102468692"
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+access_token = ""
+client_id = ""
 
 
 def place_order(id, token, security_id , price):
@@ -19,7 +23,99 @@ def place_order(id, token, security_id , price):
         order_type=dhan.MARKET,
         product_type=dhan.INTRA,
         price=price)
-    print(hdfc_order)
+    return hdfc_order
+                    
+def cancel_order(id, token, order_id):
+    """
+    Cancel an order with the given ID.
+
+    Parameters:
+    order_id (str): The ID of the order to cancel.
+
+    Returns:
+    dict: The status of the cancelled order.
+
+    Raises:
+    dhan.DhanError: If the order cancellation fails.
+    """
+
+    # Connect to the Dhan API
+    dhan = dhanhq(client_id=id, access_token=token)
+
+    # Cancel the order
+    try:
+        order_status = dhan.cancel_order(order_id)
+        logging.info(f"Order cancelled with status {order_status}")
+        return order_status
+    except Exception as e:
+        logging.error(f"Error cancelling order: {e}")
+        raise
+
+def modify_order(id, token, order_id, quantity, price):
+    """
+    Modify an order with the given ID.
+
+    Parameters:
+    order_id (str): The ID of the order to modify.
+    quantity (int): The new quantity of the security to trade.
+    price (float): The new price at which to trade the security.
+    order_type (str): The new type of the order (e.g. "LIMIT", "MARKET").
+    validity (str): The new validity of the order (e.g. "DAY", "GOOD_TILL_CANCEL").
+
+    Returns:
+    dict: The status of the modified order.
+
+    Raises:
+    dhan.DhanError: If the order modification fails.
+    """
+
+    # Connect to the Dhan API
+    dhan = dhanhq(client_id=id, access_token=token)
+
+    # Modify the order
+    try:
+        order_status = dhan.modify_order(
+            order_id=order_id,
+            order_type=dhan.MARKET,
+            leg_name='ENTRY_LEG',
+            quantity=quantity,
+            price=price,
+            disclosed_quantity=10,
+            trigger_price=0,
+            validity=dhan.DAY
+        )
+        logging.info(f"Order modified with status {order_status}")
+        return order_status
+    except Exception as e:
+        logging.error(f"Error modifying order: {e}")
+        raise
+        # return None, f"Error modifying order: {str(e)}"
+
+def get_order_status(id, token, order_id):
+    """
+    Get the status of an order with the given ID.
+
+    Parameters:
+    order_id (str): The ID of the order to retrieve the status for.
+
+    Returns:
+    dict: The status of the order.
+
+    Raises:
+    dhan.DhanError: If the order status retrieval fails.
+    """
+
+    # Connect to the Dhan API
+    dhan = dhanhq(client_id=id, access_token=token)
+
+    # Retrieve the order status
+    try:
+        order_status = dhan.get_order_by_id(order_id)
+        logging.info(f"Order status: {order_status}")
+        return order_status
+    except Exception as e:
+        logging.error(f"Error retrieving order status: {e}")
+        raise
 
 async def on_connect(instance):
     print("Connected to websocket")
